@@ -1,5 +1,7 @@
 # Job Tracker
 
+**Live demo:** https://job-tracker-rouge-three.vercel.app
+
 Track job applications on a status board. Built with **Next.js (App Router)**, **TypeScript**, **Tailwind CSS** and **Supabase** (Postgres, email/password auth, row-level security).
 
 ## Features
