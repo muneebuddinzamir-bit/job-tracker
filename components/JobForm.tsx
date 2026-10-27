@@ -1,15 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { supabase, STATUSES, type Job, type Status } from "@/lib/supabase";
+import { STATUSES, type Job, type Status } from "@/lib/jobs";
+import type { JobStore } from "@/lib/store";
 
 type Props = {
+  store: JobStore;
   job?: Job;
   onClose: () => void;
   onSaved: () => void;
 };
 
-export default function JobForm({ job, onClose, onSaved }: Props) {
+export default function JobForm({ store, job, onClose, onSaved }: Props) {
   const [company, setCompany] = useState(job?.company ?? "");
   const [role, setRole] = useState(job?.role ?? "");
   const [status, setStatus] = useState<Status>(job?.status ?? "applied");
@@ -29,12 +31,15 @@ export default function JobForm({ job, onClose, onSaved }: Props) {
       link: link.trim() || null,
       notes: notes.trim() || null,
     };
-    const { error } = job
-      ? await supabase.from("jobs").update(values).eq("id", job.id)
-      : await supabase.from("jobs").insert(values);
-    setBusy(false);
-    if (error) return setError(error.message);
-    onSaved();
+    try {
+      if (job) await store.update(job.id, values);
+      else await store.create(values);
+      onSaved();
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setBusy(false);
+    }
   }
 
   const input =
